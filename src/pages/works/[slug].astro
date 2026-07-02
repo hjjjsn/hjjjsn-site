@@ -1,0 +1,96 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import EmbedFacade from "../../components/EmbedFacade.astro";
+
+export async function getStaticPaths() {
+  const works = await getCollection("works");
+  return works.map((work) => ({
+    params: { slug: work.id },
+    props: { work },
+  }));
+}
+
+const { work } = Astro.props;
+const { title, date, type, tags, description, platform, embedId, links } =
+  work.data;
+const { Content } = await render(work);
+const dateLabel = date.toISOString().slice(0, 10);
+---
+
+<Base title={title} description={description} current="works">
+  <article class="work settle-hero">
+    <header class="work-header">
+      <p class="meta">
+        {dateLabel} · {type}{tags.length > 0 && ` · ${tags.join(" / ")}`}
+      </p>
+      <h1>{title}</h1>
+      {description && <p class="description">{description}</p>}
+    </header>
+
+    {
+      platform !== "none" && embedId && (
+        <div class="embed">
+          <EmbedFacade platform={platform} embedId={embedId} title={title} />
+        </div>
+      )
+    }
+
+    <!-- 制作の言葉(本文は空でもよい:§4.2) -->
+    <div class="body">
+      <Content />
+    </div>
+
+    {
+      links.length > 0 && (
+        <ul class="related-links">
+          {links.map((link) => (
+            <li>
+              <a href={link.url} rel="noopener" target="_blank">
+                {link.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </article>
+</Base>
+
+<style>
+  .work-header {
+    margin-block: 3rem 2.5rem;
+  }
+
+  .work-header h1 {
+    margin-block: 0.75rem 0.5rem;
+  }
+
+  .description {
+    max-width: var(--measure);
+  }
+
+  .embed {
+    margin-block-end: 2.5rem;
+  }
+
+  .body {
+    max-width: var(--measure);
+  }
+
+  .body :global(p) {
+    margin-block-end: 1.5em;
+  }
+
+  .related-links {
+    list-style: none;
+    padding: 1.5rem 0 0;
+    margin-block-start: 2.5rem;
+    border-block-start: 1px solid var(--haze);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+</style>

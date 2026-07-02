@@ -1,0 +1,28 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import WordRow from "../../components/WordRow.astro";
+
+const words = (await getCollection("words")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
+);
+---
+
+<Base title="Words" current="words">
+  <h1 class="page-title settle-hero">Words</h1>
+  <ul class="words-list">
+    {words.map((word) => <WordRow word={word} />)}
+  </ul>
+</Base>
+
+<style>
+  .page-title {
+    margin-block: 3rem 3.5rem;
+  }
+
+  .words-list {
+    list-style: none;
+    padding: 0;
+    border-block-start: 1px solid var(--haze);
+  }
+</style>

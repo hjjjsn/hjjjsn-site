@@ -1,0 +1,24 @@
+/* §3.2 カラートークン — 「溶けているあいだ」
+   低コントラスト・低彩度。本文のみ WCAG AA を確保する。 */
+:root {
+  --base: #edede8;         /* 背景。白濁した生成り */
+  --ink: #3a3d3a;          /* 本文。墨がにじんだグレー */
+  --haze: #c8ccc4;         /* 罫線、境界、非活性 */
+  --moss: #6b7a6e;         /* 見出し補助、リンクホバー、メタ情報 */
+  --precipitate: #b5543f;  /* 析出。Discord CTA と現在地表示にのみ使用 */
+
+  /* §3.3 タイポグラフィ */
+  --font-serif: "Zen Old Mincho", "Hiragino Mincho ProN", serif;
+  --font-sans: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  /* §3.5 余白は「繭」。セクション間はモバイルでも 6rem 以上 */
+  --space-section: 6rem;
+  --measure: 38rem; /* 本文の最大行長 */
+}
+
+@media (min-width: 768px) {
+  :root {
+    --space-section: 9rem;
+  }
+}

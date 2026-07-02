@@ -1,0 +1,92 @@
+---
+import Base from "../layouts/Base.astro";
+import DiscordCta from "../components/DiscordCta.astro";
+---
+
+<Base title="About" current="about">
+  <article class="about settle-hero">
+    <h1 class="page-title">About</h1>
+
+    <!-- 冒頭は『溶けているあいだ』まえがきの一文をそのまま使う(§2.4) -->
+    <p class="lead">体が先に引っかかって、あとから言葉がついてくる。</p>
+
+    <p>
+      hjjjsn。曲を書き、言葉を書き、絵を描き、ときどきプラグインを作る。
+      素材は違っても、やっていることはひとつで、立ち上がった知覚を消えないうちに定着させること。
+      うまく言えなくても、引っかかったまま外に置く。
+    </p>
+
+    <section class="area">
+      <h2>領域</h2>
+      <ul class="area-list">
+        <li>
+          <span class="meta">music</span>
+          ボカロ曲。変拍子の math rock。拍子は説明のためではなく、体が数えた結果として決まる。
+        </li>
+        <li>
+          <span class="meta">words</span>
+          批評とエッセイ。エッセイ集『溶けているあいだ』。
+        </li>
+        <li>
+          <span class="meta">visual</span>
+          イラストとアニメーション。自作MVの絵はだいたい自分で動かしている。
+        </li>
+        <li>
+          <span class="meta">dsp</span>
+          オーディオプラグイン開発。言葉にならなかった音は、コードで書く。
+        </li>
+      </ul>
+    </section>
+
+    <section class="contact">
+      <h2>連絡先</h2>
+      <p class="meta">
+        <!-- TODO: 実際の連絡先に差し替え -->
+        contact: hjjjsn [at] example.com
+      </p>
+    </section>
+  </article>
+
+  <section class="section">
+    <DiscordCta />
+  </section>
+</Base>
+
+<style>
+  .page-title {
+    margin-block: 3rem 3.5rem;
+  }
+
+  .about {
+    max-width: var(--measure);
+  }
+
+  .lead {
+    font-family: var(--font-serif);
+    font-size: 1.15rem;
+    letter-spacing: 0.08em;
+    margin-block-end: 2.5rem;
+  }
+
+  .area,
+  .contact {
+    margin-block-start: 4rem;
+  }
+
+  .area h2,
+  .contact h2 {
+    margin-block-end: 1.5rem;
+  }
+
+  .area-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .area-list .meta {
+    display: block;
+    margin-block-end: 0.25rem;
+  }
+</style>

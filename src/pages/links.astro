@@ -1,0 +1,58 @@
+---
+// SNS プロフィールから直接貼る用のリンク集(§4.1)
+import Base from "../layouts/Base.astro";
+import DiscordCta from "../components/DiscordCta.astro";
+import { LINKS } from "../config";
+---
+
+<Base title="Links" current="links">
+  <h1 class="page-title settle-hero">Links</h1>
+  <ul class="links-list settle-hero">
+    {
+      LINKS.map((link) => (
+        <li>
+          <a href={link.url} rel="me noopener" target="_blank">
+            <span class="link-label">{link.label}</span>
+            <span class="meta link-url">{link.url.replace("https://", "")}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <section class="section">
+    <DiscordCta />
+  </section>
+</Base>
+
+<style>
+  .page-title {
+    margin-block: 3rem 3.5rem;
+  }
+
+  .links-list {
+    list-style: none;
+    padding: 0;
+    max-width: var(--measure);
+    border-block-start: 1px solid var(--haze);
+  }
+
+  .links-list a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    padding-block: 1.25rem;
+    border-block-end: 1px solid var(--haze);
+    text-decoration: none;
+  }
+
+  .link-label {
+    font-family: var(--font-serif);
+    letter-spacing: 0.08em;
+  }
+
+  .links-list a:hover .link-label {
+    color: var(--moss);
+  }
+</style>

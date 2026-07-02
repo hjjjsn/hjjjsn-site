@@ -1,0 +1,43 @@
+---
+// §4.4 Discord CTA。押し売りしない「奥の部屋」。
+// --precipitate はここ(と現在地表示)にしか使わない。
+import { DISCORD } from "../config";
+---
+
+<div class="discord-cta settle">
+  <p class="cta-text">── {DISCORD.ctaText}</p>
+  <a href={DISCORD.inviteUrl} class="cta-button" rel="noopener" target="_blank">
+    {DISCORD.buttonLabel}
+  </a>
+</div>
+
+<style>
+  .discord-cta {
+    text-align: center;
+    padding-block: 2rem;
+  }
+
+  .cta-text {
+    font-family: var(--font-serif);
+    letter-spacing: 0.08em;
+    margin-block-end: 1.5rem;
+  }
+
+  /* 細い枠線 + テキスト。塗りつぶしの大きなボタンにしない(§4.4) */
+  .cta-button {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    color: var(--precipitate);
+    border: 1px solid var(--precipitate);
+    padding: 0.5rem 1.75rem;
+    text-decoration: none;
+    transition: background-color 300ms ease-out, color 300ms ease-out;
+  }
+
+  .cta-button:hover {
+    background: var(--precipitate);
+    color: var(--base);
+  }
+</style>

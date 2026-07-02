@@ -1,0 +1,147 @@
+@import "./tokens.css";
+
+/* ---- リセット・基調 ---- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  background: var(--base);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.9;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+img,
+iframe {
+  max-width: 100%;
+  display: block;
+}
+
+/* ---- タイポグラフィ(§3.3) ---- */
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 400; /* 大きく・細く */
+  letter-spacing: 0.08em;
+  line-height: 1.5;
+}
+
+h1 {
+  font-size: 1.75rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+  color: var(--ink);
+}
+
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--haze);
+  text-underline-offset: 0.3em;
+  transition: color 300ms ease-out, text-decoration-color 300ms ease-out;
+}
+
+a:hover {
+  color: var(--moss);
+  text-decoration-color: var(--moss);
+}
+
+/* キーボードフォーカス可視(§4.5) */
+:focus-visible {
+  outline: 1.5px solid var(--moss);
+  outline-offset: 3px;
+}
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--moss);
+  letter-spacing: 0.04em;
+}
+
+/* ---- レイアウト共通 ---- */
+.container {
+  width: 100%;
+  max-width: 52rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+.section {
+  margin-block-start: var(--space-section);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--haze);
+}
+
+/* ---- シグネチャモーション:「析出」(§3.4) ----
+   ぼやけたものに焦点が合う。フェードでもスライドでもない。 */
+.settle {
+  filter: blur(8px);
+  opacity: 0.2;
+  transition: filter 600ms ease-out, opacity 600ms ease-out;
+}
+
+.settle.is-settled {
+  filter: blur(0);
+  opacity: 1;
+}
+
+/* JS 無効時・reduced-motion では即時表示(§3.4 必須) */
+html.no-js .settle,
+html.no-js .settle-hero {
+  filter: none;
+  opacity: 1;
+}
+
+.settle-hero {
+  animation: settle-in 600ms ease-out both;
+}
+
+@keyframes settle-in {
+  from {
+    filter: blur(8px);
+    opacity: 0.2;
+  }
+  to {
+    filter: blur(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settle,
+  .settle-hero {
+    filter: none !important;
+    opacity: 1 !important;
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ホバーは逆方向:「触れると溶ける」。にじみは 2px に留める */
+.melt-on-hover {
+  transition: filter 300ms ease-out;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  a:hover .melt-on-hover,
+  button:hover .melt-on-hover {
+    filter: blur(2px);
+  }
+}

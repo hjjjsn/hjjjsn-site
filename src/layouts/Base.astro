@@ -1,0 +1,192 @@
+---
+import "../styles/global.css";
+import { SITE, LINKS } from "../config";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** 現在地表示(--precipitate)に使う nav キー */
+  current?: "works" | "words" | "about" | "links";
+}
+
+const { title, description = SITE.description, current } = Astro.props;
+const pageTitle = title ? `${title} — ${SITE.title}` : SITE.title;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL("/og-default.png", Astro.site);
+
+const nav = [
+  { key: "works", label: "Works", href: "/works/" },
+  { key: "words", label: "Words", href: "/words/" },
+  { key: "about", label: "About", href: "/about/" },
+  { key: "links", label: "Links", href: "/links/" },
+] as const;
+---
+
+<!doctype html>
+<html lang="ja" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={SITE.title}
+      href="/rss.xml"
+    />
+
+    <!-- OGP / Twitter カード(§4.5) -->
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400&family=Zen+Kaku+Gothic+New:wght@400;500&family=Zen+Old+Mincho:wght@400&display=swap"
+    />
+
+    <!-- JS 有効時のみ析出モーションを適用するためのフラグ -->
+    <script is:inline>
+      document.documentElement.classList.remove("no-js");
+    </script>
+  </head>
+  <body>
+    <header class="site-header container">
+      <a href="/" class="logo">hjjjsn</a>
+      <nav aria-label="サイト内">
+        {
+          nav.map((item) => (
+            <a
+              href={item.href}
+              class="nav-link"
+              aria-current={current === item.key ? "page" : undefined}
+            >
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+    </header>
+
+    <main class="container" style="flex: 1">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <slot name="footer-cta" />
+        <ul class="footer-links">
+          {
+            LINKS.map((link) => (
+              <li>
+                <a href={link.url} rel="me noopener" target="_blank">
+                  {link.label}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="meta copyright">hjjjsn</p>
+      </div>
+    </footer>
+
+    <!-- 析出:スクロールで要素に焦点が合う(§3.4) -->
+    <script>
+      const prefersReduced = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const targets = document.querySelectorAll(".settle");
+      if (prefersReduced || !("IntersectionObserver" in window)) {
+        targets.forEach((el) => el.classList.add("is-settled"));
+      } else {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-settled");
+                observer.unobserve(entry.target);
+              }
+            }
+          },
+          { rootMargin: "0px 0px -10% 0px" },
+        );
+        targets.forEach((el) => observer.observe(el));
+      }
+    </script>
+
+    <style>
+      /* ヘッダは極小・mono体(§3.5) */
+      .site-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 1rem;
+        padding-block: 1.5rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+      }
+
+      .logo {
+        text-decoration: none;
+        letter-spacing: 0.06em;
+      }
+
+      nav {
+        display: flex;
+        gap: 1.25rem;
+      }
+
+      .nav-link {
+        text-decoration: none;
+        color: var(--moss);
+      }
+
+      .nav-link:hover {
+        color: var(--ink);
+      }
+
+      /* 現在地表示 — --precipitate の許可された用途(§3.2) */
+      .nav-link[aria-current="page"] {
+        color: var(--precipitate);
+      }
+
+      .site-footer {
+        margin-block-start: var(--space-section);
+        border-top: 1px solid var(--haze);
+        padding-block: 3rem 2rem;
+      }
+
+      .footer-links {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.5rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+      }
+
+      .footer-links a {
+        color: var(--moss);
+        text-decoration: none;
+      }
+
+      .footer-links a:hover {
+        color: var(--ink);
+      }
+
+      .copyright {
+        margin-block-start: 2rem;
+        color: var(--haze);
+      }
+    </style>
+  </body>
+</html>

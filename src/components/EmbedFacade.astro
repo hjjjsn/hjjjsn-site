@@ -1,0 +1,138 @@
+---
+/**
+ * §4.3 埋め込みファサード。
+ * クリックされるまで iframe を読み込まない。YouTube は nocookie ドメイン。
+ * JS 無効時は再生不可(要件上、可)— noscript でプラットフォームへの直リンクを出す。
+ */
+interface Props {
+  platform: "youtube" | "niconico";
+  embedId: string;
+  title: string;
+}
+
+const { platform, embedId, title } = Astro.props;
+
+const embedSrc =
+  platform === "youtube"
+    ? `https://www.youtube-nocookie.com/embed/${embedId}?autoplay=1`
+    : `https://embed.nicovideo.jp/watch/${embedId}?autoplay=1`;
+
+const watchUrl =
+  platform === "youtube"
+    ? `https://www.youtube.com/watch?v=${embedId}`
+    : `https://www.nicovideo.jp/watch/${embedId}`;
+
+const thumbnail =
+  platform === "youtube"
+    ? `https://i.ytimg.com/vi/${embedId}/hqdefault.jpg`
+    : null;
+---
+
+<div class="facade" data-embed-src={embedSrc} data-title={title}>
+  <button type="button" class="facade-button" aria-label={`${title} を再生`}>
+    {
+      thumbnail ? (
+        <img
+          src={thumbnail}
+          alt=""
+          loading="lazy"
+          width="480"
+          height="360"
+          class="facade-thumb"
+        />
+      ) : (
+        <span class="facade-blank" aria-hidden="true">{title}</span>
+      )
+    }
+    <!-- --haze のオーバーレイ。ホバーで晴れる(§4.3) -->
+    <span class="facade-overlay" aria-hidden="true"></span>
+    <span class="facade-play meta" aria-hidden="true">▶ play</span>
+  </button>
+  <noscript>
+    <p class="meta">
+      <a href={watchUrl} rel="noopener" target="_blank">
+        {platform === "youtube" ? "YouTube" : "niconico"} で観る
+      </a>
+    </p>
+  </noscript>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>(".facade").forEach((facade) => {
+    const button = facade.querySelector("button");
+    button?.addEventListener("click", () => {
+      const iframe = document.createElement("iframe");
+      iframe.src = facade.dataset.embedSrc ?? "";
+      iframe.title = facade.dataset.title ?? "";
+      iframe.allow =
+        "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+      iframe.allowFullscreen = true;
+      iframe.classList.add("facade-iframe");
+      facade.replaceChildren(iframe);
+    });
+  });
+</script>
+
+<style>
+  .facade {
+    aspect-ratio: 16 / 9;
+    background: var(--haze);
+  }
+
+  .facade-button {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    overflow: hidden;
+  }
+
+  .facade-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .facade-blank {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    font-family: var(--font-serif);
+    letter-spacing: 0.08em;
+    color: var(--moss);
+  }
+
+  .facade-overlay {
+    position: absolute;
+    inset: 0;
+    background: var(--haze);
+    opacity: 0.45;
+    transition: opacity 300ms ease-out;
+  }
+
+  .facade-button:hover .facade-overlay,
+  .facade-button:focus-visible .facade-overlay {
+    opacity: 0;
+  }
+
+  .facade-play {
+    position: absolute;
+    inset-block-end: 0.75rem;
+    inset-inline-start: 0.75rem;
+    color: var(--ink);
+    background: var(--base);
+    padding: 0.2rem 0.6rem;
+  }
+
+  .facade :global(.facade-iframe) {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+</style>
