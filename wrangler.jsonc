@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Cloudflare ダッシュボードの Workers Builds プロジェクト名と一致させる
+  "name": "hjjjsn-site",
+  "compatibility_date": "2026-07-02",
+  // Worker スクリプトを持たない純粋な静的サイト。dist を配信するだけ
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}
