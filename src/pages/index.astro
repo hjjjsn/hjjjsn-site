@@ -2,7 +2,7 @@
 import Base from "../layouts/Base.astro";
 import EmbedFacade from "../components/EmbedFacade.astro";
 import DiscordCta from "../components/DiscordCta.astro";
-import { SITE, LINKS, DISCORD, SERVICES, COMPILATION } from "../config";
+import { SITE, LINKS, DISCORD, SERVICES, COMPILATION, MUSIC } from "../config";
 
 // ヒーロー:表示のたびに Worker の /api/hero-videos(チャンネルの横動画一覧)から
 // クライアント側でランダムに1本選ぶ。ここでは初期表示 兼 API 失敗時の
@@ -13,6 +13,14 @@ const heroVideos: { id: string; title: string }[] = [
 ];
 
 const hero = heroVideos[0];
+
+const spotifyUrl = LINKS.find((l) => l.label === "Spotify")?.url ?? "";
+// 作品の棚(Spotify は最新リリース枠が担うので除く)
+const shelf = LINKS.filter((l) => l.label !== "Spotify").map((l) => ({
+  key: l.label.toLowerCase(),
+  label: l.label,
+  url: l.url,
+}));
 ---
 
 <Base>
@@ -36,6 +44,41 @@ const hero = heroVideos[0];
 
   <section class="section">
     <h2 class="section-title settle">作品</h2>
+
+    {/* 最新リリース:内容は /api/works から取得して JS で埋める */}
+    <div
+      class="release settle"
+      id="latest-release"
+      data-itunes-id={MUSIC.itunesArtistId}
+    >
+      <a
+        class="release-cover"
+        href={spotifyUrl}
+        rel="me noopener"
+        target="_blank"
+        aria-label="最新リリースを Spotify で聴く"
+      >
+        <img
+          class="melt-on-hover"
+          alt=""
+          width="600"
+          height="600"
+          loading="lazy"
+          hidden
+        />
+      </a>
+      <div class="release-info">
+        <p class="meta">最新リリース</p>
+        <h3 class="release-title"></h3>
+        <p class="meta release-date"></p>
+        <p class="release-listen">
+          <a href={spotifyUrl} rel="me noopener" target="_blank"
+            >Spotify で聴く</a
+          >
+        </p>
+      </div>
+    </div>
+
     <div class="compilation settle">
       <h3 class="service-title">{COMPILATION.label}</h3>
       <div class="compilation-video">
@@ -46,20 +89,29 @@ const hero = heroVideos[0];
         />
       </div>
     </div>
-    <ul class="support-list settle">
+
+    {/* 棚:各プラットフォームの最新ビジュアルを /api/works から埋める */}
+    <div class="shelf settle">
       {
-        LINKS.map((link) => (
-          <li>
-            <a href={link.url} rel="me noopener" target="_blank">
-              <span class="support-label">{link.label}</span>
-              <span class="meta support-url">
-                {link.url.replace("https://", "")}
+        shelf.map((card) => (
+          <a
+            class="shelf-card"
+            data-card={card.key}
+            href={card.url}
+            rel="me noopener"
+            target="_blank"
+          >
+            <span class="shelf-thumb">
+              <span class="shelf-blank" aria-hidden="true">
+                {card.label}
               </span>
-            </a>
-          </li>
+              <img class="melt-on-hover" alt="" loading="lazy" hidden />
+            </span>
+            <span class="meta shelf-label">{card.label}</span>
+          </a>
         ))
       }
-    </ul>
+    </div>
   </section>
 
   <section class="section">
@@ -136,6 +188,56 @@ const hero = heroVideos[0];
   }
 </script>
 
+<script>
+  // 作品セクション:失敗時は静的表示のまま(リンクとラベルは機能する)
+
+  // 最新リリース:iTunes Search API をブラウザから直接叩く(CORS 対応済み。
+  // Cloudflare のエッジIPは 403 で弾かれるため Worker 経由にしない)
+  async function fillLatestRelease() {
+    const releaseEl = document.getElementById("latest-release");
+    const artistId = releaseEl?.dataset.itunesId;
+    if (!releaseEl || !artistId) return;
+    const res = await fetch(
+      `https://itunes.apple.com/lookup?id=${artistId}&entity=album&country=JP&sort=recent&limit=25`,
+    );
+    if (!res.ok) return;
+    const data = await res.json();
+    const latest = (data.results ?? [])
+      .filter((r: any) => r.wrapperType === "collection")
+      .sort((a: any, b: any) => (a.releaseDate < b.releaseDate ? 1 : -1))[0];
+    if (!latest) return;
+
+    const img = releaseEl.querySelector("img");
+    const title = releaseEl.querySelector(".release-title");
+    const date = releaseEl.querySelector(".release-date");
+    if (img) {
+      img.src = latest.artworkUrl100.replace("100x100bb", "600x600bb");
+      img.hidden = false;
+    }
+    if (title) title.textContent = latest.collectionName;
+    if (date) date.textContent = latest.releaseDate.slice(0, 10);
+  }
+
+  // 棚カード:各プラットフォームの最新ビジュアルを /api/works から埋める
+  async function fillShelf() {
+    const res = await fetch("/api/works");
+    if (!res.ok) return;
+    const data: { cards: Record<string, string | null> } = await res.json();
+    for (const [key, image] of Object.entries(data.cards ?? {})) {
+      if (!image) continue;
+      const card = document.querySelector(`.shelf-card[data-card="${key}"]`);
+      const img = card?.querySelector("img");
+      if (img) {
+        img.src = image;
+        img.hidden = false;
+      }
+    }
+  }
+
+  fillLatestRelease().catch(() => {});
+  fillShelf().catch(() => {});
+</script>
+
 <style>
   .hero {
     display: grid;
@@ -202,6 +304,44 @@ const hero = heroVideos[0];
     }
   }
 
+  /* 最新リリース:ジャケット + 情報の2カラム(モバイルは縦積み) */
+  .release {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem 2.5rem;
+    margin-block-end: 3.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .release {
+      grid-template-columns: 16rem 1fr;
+      align-items: start;
+    }
+  }
+
+  .release-cover {
+    display: block;
+    aspect-ratio: 1;
+    background: var(--haze);
+    overflow: hidden;
+  }
+
+  .release-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .release-title {
+    font-size: 1.35rem;
+    margin-block: 0.5rem 0.25rem;
+    min-height: 1em;
+  }
+
+  .release-listen {
+    margin-block-start: 1.5rem;
+  }
+
   .compilation {
     margin-block-end: 3.5rem;
   }
@@ -212,29 +352,58 @@ const hero = heroVideos[0];
     }
   }
 
-  .support-list {
-    list-style: none;
-    padding: 0;
-    max-width: var(--measure);
-    border-block-start: 1px solid var(--haze);
+  /* 棚:各プラットフォームの最新ビジュアルを正方形カードで並べる */
+  .shelf {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem 1.5rem;
   }
 
-  .support-list a {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 0.25rem 1rem;
-    padding-block: 1.25rem;
-    border-block-end: 1px solid var(--haze);
+  @media (min-width: 640px) {
+    .shelf {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .shelf-card {
+    display: block;
     text-decoration: none;
   }
 
-  .support-label {
-    font-family: var(--font-serif);
-    letter-spacing: 0.08em;
+  .shelf-thumb {
+    position: relative;
+    display: block;
+    aspect-ratio: 1;
+    background: var(--haze);
+    overflow: hidden;
   }
 
-  .support-list a:hover .support-label {
+  .shelf-thumb img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .shelf-blank {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-serif);
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
     color: var(--moss);
+  }
+
+  .shelf-label {
+    display: block;
+    margin-block-start: 0.5rem;
+  }
+
+  .shelf-card:hover .shelf-label {
+    color: var(--ink);
   }
 </style>

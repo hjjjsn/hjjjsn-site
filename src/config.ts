@@ -30,6 +30,12 @@ export const COMPILATION = {
   videoId: "-LR0hXOsLu8",
 } as const;
 
+export const MUSIC = {
+  // iTunes Search API のアーティストID。最新リリース(ジャケット・タイトル)の
+  // 自動取得に使う(認証不要。Spotify API は Premium 必須になったため不採用)
+  itunesArtistId: "1869213901",
+} as const;
+
 // 応援して欲しいもの。フッタ・/links/・トップの作品セクションに使う
 export const LINKS = [
   {
