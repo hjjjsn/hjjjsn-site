@@ -31,10 +31,10 @@ gh api repos/hjjjsn/hjjjsn-site/commits/<sha>/check-runs --jq '.check_runs[] | {
 
 ユーザー指示により、要件書の「Works/Words/About」構成から **「依頼(頼まれてできること)」+「作品(応援して欲しいもの)」の2本柱** に再構成した。デザイントークン・「析出」モーション・トーンは維持。ページは `/`・`/links/`・`/404` の3つだけ。
 
-- **トップ `/`**(セクション順はユーザー指示で 作品 → 依頼):
+- **トップ `/`**(セクション順はユーザー指示で 作品 → 参加):
   - Hero:**Worker の `/api/hero-videos`(YouTube フィードプロキシ、エッジ10分キャッシュ)から表示時に取得**し、クライアント側でランダムに1本表示。**横動画のみ**(ユーザー指示で Shorts 除外。判定:`/shorts/{id}` へ HEAD → 通常動画は 3xx リダイレクト、Shorts は 200。oEmbed の width/height では区別できなかった)。API 失敗時はページ埋め込みのフォールバック(キャプリズム + 実績動画)。縦書き文言は「音楽をしています」。※ビルド時のフィード取得は CI 環境で失敗するため廃止済み。フィルタ条件を変えたら worker 内キャッシュキーの `?v=N` を上げて旧エッジキャッシュを無効化すること
-  - 作品:①**最新リリース**(ジャケット大+タイトル+「Spotify で聴く」。iTunes Search API `lookup?id=1869213901` を**クライアントから直接**取得。CORS 対応済みだが Cloudflare エッジIPは 403 で弾かれるため Worker 経由にしないこと。Spotify Web API はアプリ所有者に Premium 必須のため不採用)② コンピレーションアルバム「キャプリズム」XFD(-LR0hXOsLu8)③ **棚カード4枚**(YouTube / niconico / BOOTH / note。画像は `/api/works` から。YouTube=最新横動画サムネ、niconico=nvapi の最新投稿サムネ、note=RSS の最新記事画像、BOOTH=ショップ先頭商品画像だが**現在ショップが空 + CF から 403 のため null**=ラベル表示)。リード文なし
-  - 依頼:ボーカルミックス(rB7107d5a2o)/ オケ音源制作(VYkGTB1FP5o)/ 楽器演奏(4NQBUvLZVao, 8AFoT6Y13ok)。実績動画の埋め込みのみ。リード文は「相談は Discord から。」だけ
+  - 作品:①**最新リリース**(ジャケット大+タイトル+「Spotify で聴く」。iTunes Search API `lookup?id=1869213901` を**クライアントから直接**取得。CORS 対応済みだが Cloudflare エッジIPは 403 で弾かれるため Worker 経由にしないこと。Spotify Web API はアプリ所有者に Premium 必須のため不採用)② **棚カード4枚**(YouTube / niconico / BOOTH / note。画像は `/api/works` から。YouTube=最新横動画サムネ、niconico=nvapi の最新投稿サムネ、note=RSS の最新記事画像、BOOTH=ショップ先頭商品画像だが**現在ショップが空 + CF から 403 のため null**=ラベル表示)。リード文なし
+  - 参加(旧「依頼」からユーザー指示で改名):ボーカルミックス(rB7107d5a2o)/ オケ音源制作(VYkGTB1FP5o)/ 楽器演奏(4NQBUvLZVao, 8AFoT6Y13ok)/ コンピレーションアルバム「キャプリズム」XFD(-LR0hXOsLu8)。実績動画の埋め込みのみ。リード文は「相談は Discord から。」だけ
   - Discord CTA はボタンのみ(「たまに、ここで話しています」の文言はユーザー指示で削除)
 - **Worker スクリプト追加済み**(`worker/index.js` + `wrangler.jsonc` の `main`)。静的アセット配信 + `/api/hero-videos` + `/api/works`(棚カード画像。30分キャッシュ、`?debug=1` でキャッシュ回避+失敗理由表示)。定数は `src/config.ts` を import。外部取得は全て認証不要(Spotify の API キーは不要になった。ユーザーが作った Spotify アプリは削除してよい)
 - **削除済み**:About・works 詳細/一覧・words・RSS・コンテンツコレクション(`src/content.config.ts`)・`WorkCard`/`WordRow`。全コンテンツは **`src/config.ts` の定数(SERVICES / COMPILATION / LINKS / DISCORD)で一元管理** に変更
