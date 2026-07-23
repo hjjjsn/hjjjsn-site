@@ -6,7 +6,7 @@ interface Props {
   title?: string;
   description?: string;
   /** 現在地表示(--precipitate)に使う nav キー */
-  current?: "works" | "words" | "about" | "links";
+  current?: "works" | "about" | "links";
 }
 
 const { title, description = SITE.description, current } = Astro.props;
@@ -16,7 +16,6 @@ const ogImage = new URL("/og-default.png", Astro.site);
 
 const nav = [
   { key: "works", label: "Works", href: "/works/" },
-  { key: "words", label: "Words", href: "/words/" },
   { key: "about", label: "About", href: "/about/" },
   { key: "links", label: "Links", href: "/links/" },
 ] as const;

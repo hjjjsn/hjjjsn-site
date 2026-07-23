@@ -3,24 +3,30 @@
 
 export const SITE = {
   title: "hjjjsn",
-  description: "体が先に引っかかって、あとから言葉がついてくる。音楽・言葉・イラスト・プラグインの置き場。",
+  description:
+    "体が先に引っかかって、あとから言葉がついてくる。ボーカルミックスとオケ音源制作、作ったものの置き場。",
   // 縦書きで置く一文(トップページ・ヒーロー右端)
   verticalLine: "体が先に引っかかって、あとから言葉がついてくる",
 } as const;
 
 export const DISCORD = {
-  // TODO: 実際の招待リンクに差し替える
-  inviteUrl: "https://discord.gg/XXXXXXXX",
+  inviteUrl: "https://discord.gg/m9bwWuGZ",
   // トーン基準(§2.4):「参加しよう!」ではない温度
   ctaText: "たまに、ここで話しています",
   buttonLabel: "Discord",
 } as const;
 
+// 応援して欲しいこと。フッタ・/links/・トップの Support に使う
 export const LINKS = [
-  { label: "YouTube", url: "https://www.youtube.com/@hjjjsn" },
-  { label: "niconico", url: "https://www.nicovideo.jp/user/XXXXXXXX" },
-  { label: "X", url: "https://x.com/hjjjsn" },
-  { label: "Bandcamp", url: "https://hjjjsn.bandcamp.com" },
+  {
+    label: "Spotify",
+    url: "https://open.spotify.com/artist/4Gpi6eJGAAPZkk9Rt9UPo4",
+  },
+  {
+    label: "YouTube",
+    url: "https://www.youtube.com/channel/UCygmaycqK-SxtJSTyU2iLFA",
+  },
+  { label: "niconico", url: "https://www.nicovideo.jp/user/142850614" },
   { label: "BOOTH", url: "https://hjjjsn.booth.pm" },
-  { label: "note", url: "https://note.com/hjjjsn" },
+  { label: "書籍", url: "https://www.amazon.co.jp/dp/B0H35397NZ" },
 ] as const;

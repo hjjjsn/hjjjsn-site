@@ -1,6 +1,7 @@
 ---
 import Base from "../layouts/Base.astro";
 import DiscordCta from "../components/DiscordCta.astro";
+import { DISCORD } from "../config";
 ---
 
 <Base title="About" current="about">
@@ -39,10 +40,10 @@ import DiscordCta from "../components/DiscordCta.astro";
     </section>
 
     <section class="contact">
-      <h2>連絡先</h2>
-      <p class="meta">
-        <!-- TODO: 実際の連絡先に差し替え -->
-        contact: hjjjsn [at] example.com
+      <h2>依頼・連絡</h2>
+      <p>
+        ボーカルミックスとオケ音源制作を、頼まれて作っています。
+        依頼や連絡は <a href={DISCORD.inviteUrl} rel="noopener" target="_blank">Discord</a> から。
       </p>
     </section>
   </article>

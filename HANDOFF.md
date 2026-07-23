@@ -41,18 +41,21 @@ gh api repos/hjjjsn/hjjjsn-site/commits/<sha>/check-runs --jq '.check_runs[] | {
 - OGP/Twitterカード全ページ設定済み。`public/og-default.png` は --base 単色のプレースホルダ
 - Cloudflare Workers へのデプロイ完了(上記参照)
 
+## サイト再構成(2026-07-23)
+
+ユーザー指示により、サイトを「頼まれてできること(依頼)」+「応援して欲しいこと(Support)」の2本柱に再構成した。デザイン・トーンは変更なし。
+
+- **works は実データ2件のみ**:`vocal-mix.md`(YouTube rB7107d5a2o)と `oke-ongen.md`(YouTube VYkGTB1FP5o)。どちらも megu さんのカバー動画(ボーカルmix / オケ制作の実績)。type enum に `mix` / `inst` を追加済み
+- **words は全削除**(コレクション・ページ・WordRow・RSSから除去)。全部ダミーだったため。書籍は Support リンク(Amazon)に移動
+- **実URL反映済み**(`src/config.ts` に一元管理、全て有効性確認済み):Discord 招待 `discord.gg/m9bwWuGZ`、Spotify・YouTube・niconico・BOOTH・書籍(Amazon B0H35397NZ)。旧ダミー(X / Bandcamp / note / メール連絡先)は削除
+- トップは Hero(vocal-mix)+ Works(依頼)+ Support(リンク列)+ About 抜粋 + Discord CTA。nav は Works / About / Links の3つ
+
 ## 残タスク(優先順)
 
-1. **実データへの差し替え** — grep で `TODO` と `XXXXXXXX` を検索。対象:
-   - `src/config.ts`:Discord 招待リンク、SNS 6リンク(ユーザーに確認が必要。前回セッションでは「後で教える」として保留になった)
-   - サンプル md の embedId / links / 本文
-   - `src/pages/about.astro` の連絡先
-   - `astro.config.mjs` の `site`(独自ドメイン取得後)
-2. **モバイル(375px)での全ページ目視確認**(受け入れ条件)。特にトップのヒーロー(縦書き併置の grid)と works グリッド
-3. **Lighthouse(モバイル)Performance 95+ / Accessibility 95+ の計測**。Google Fonts のブロッキングが引っかかる場合はサブセット化 or `fontsource` セルフホストへ切り替え
-4. **独自ドメイン接続**(取得後):Cloudflare ダッシュボードでカスタムドメインを Worker に紐付け、`astro.config.mjs` の `site` を更新
-5. **OG画像の改善**(Phase 2 だが余裕があれば):satori でタイトル入り自動生成。現状は単色プレースホルダ
-6. niconico のファサードはサムネイル無し(タイトル表示のみ)。niconico のサムネイルAPI(`https://ext.nicovideo.jp/api/getthumbinfo/{id}`)はビルド時取得が必要なので、やるなら Astro のビルド時 fetch で
+1. **モバイル(375px)での全ページ目視確認**(受け入れ条件)。特にトップのヒーロー(縦書き併置の grid)と works グリッド
+2. **Lighthouse(モバイル)Performance 95+ / Accessibility 95+ の計測**。Google Fonts のブロッキングが引っかかる場合はサブセット化 or `fontsource` セルフホストへ切り替え
+3. **独自ドメイン接続**(取得後):Cloudflare ダッシュボードでカスタムドメインを Worker に紐付け、`astro.config.mjs` の `site` を更新
+4. **OG画像の改善**(Phase 2 だが余裕があれば):satori でタイトル入り自動生成。現状は単色プレースホルダ
 
 ## 実装上の注意(仕様書に無い決定事項)
 

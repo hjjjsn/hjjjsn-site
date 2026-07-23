@@ -3,14 +3,10 @@ import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 import EmbedFacade from "../components/EmbedFacade.astro";
 import WorkCard from "../components/WorkCard.astro";
-import WordRow from "../components/WordRow.astro";
 import DiscordCta from "../components/DiscordCta.astro";
-import { SITE } from "../config";
+import { SITE, LINKS, DISCORD } from "../config";
 
 const works = (await getCollection("works")).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
-const words = (await getCollection("words")).sort(
   (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
 );
 
@@ -18,9 +14,6 @@ const words = (await getCollection("words")).sort(
 const hero =
   works.find((w) => w.data.featured && w.data.embedId) ??
   works.find((w) => w.data.embedId);
-
-const recentWorks = works.filter((w) => w.id !== hero?.id).slice(0, 3);
-const recentWords = words.slice(0, 3);
 ---
 
 <Base>
@@ -48,25 +41,41 @@ const recentWords = words.slice(0, 3);
 
   <section class="section">
     <h2 class="section-title settle">Works</h2>
+    <p class="section-lead settle">
+      頼まれてできること。ボーカルミックスと、オケ音源の制作。
+      相談は <a href={DISCORD.inviteUrl} rel="noopener" target="_blank">Discord</a> から。
+    </p>
     <div class="works-grid">
-      {recentWorks.map((work) => <WorkCard work={work} />)}
+      {works.map((work) => <WorkCard work={work} />)}
     </div>
-    <p class="more meta settle"><a href="/works/">すべての作品</a></p>
   </section>
 
   <section class="section">
-    <h2 class="section-title settle">Words</h2>
-    <ul class="words-list">
-      {recentWords.map((word) => <WordRow word={word} />)}
+    <h2 class="section-title settle">Support</h2>
+    <p class="section-lead settle">
+      応援して欲しいこと。聴く、観る、手に取る。どれでも。
+    </p>
+    <ul class="support-list settle">
+      {
+        LINKS.map((link) => (
+          <li>
+            <a href={link.url} rel="me noopener" target="_blank">
+              <span class="support-label">{link.label}</span>
+              <span class="meta support-url">
+                {link.url.replace("https://", "")}
+              </span>
+            </a>
+          </li>
+        ))
+      }
     </ul>
-    <p class="more meta settle"><a href="/words/">すべての言葉</a></p>
   </section>
 
   <section class="section about-excerpt settle">
     <h2 class="section-title">About</h2>
     <p>
       体が先に引っかかって、あとから言葉がついてくる。<br />
-      音楽、言葉、絵、プラグイン。素材は違っても、やっていることは同じ。
+      素材は違っても、やっていることは同じ。
     </p>
     <p class="more meta"><a href="/about/">詳しく</a></p>
   </section>
@@ -111,6 +120,11 @@ const recentWords = words.slice(0, 3);
     margin-block-end: 2rem;
   }
 
+  .section-lead {
+    max-width: var(--measure);
+    margin-block-end: 2.5rem;
+  }
+
   .works-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -119,14 +133,34 @@ const recentWords = words.slice(0, 3);
 
   @media (min-width: 640px) {
     .works-grid {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
     }
   }
 
-  .words-list {
+  .support-list {
     list-style: none;
     padding: 0;
+    max-width: var(--measure);
     border-block-start: 1px solid var(--haze);
+  }
+
+  .support-list a {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 1rem;
+    padding-block: 1.25rem;
+    border-block-end: 1px solid var(--haze);
+    text-decoration: none;
+  }
+
+  .support-label {
+    font-family: var(--font-serif);
+    letter-spacing: 0.08em;
+  }
+
+  .support-list a:hover .support-label {
+    color: var(--moss);
   }
 
   .more {
