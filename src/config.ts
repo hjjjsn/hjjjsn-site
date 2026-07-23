@@ -54,6 +54,7 @@ export const LINKS = [
     url: "https://www.youtube.com/channel/UCygmaycqK-SxtJSTyU2iLFA",
   },
   { label: "niconico", url: "https://www.nicovideo.jp/user/142850614" },
+  { label: "SoundCloud", url: "https://soundcloud.com/wjxxsthzcucq" },
   { label: "BOOTH", url: "https://hjjjsn.booth.pm" },
   { label: "note", url: "https://note.com/hjjjsn" },
 ] as const;
