@@ -23,9 +23,9 @@ export const SERVICES = [
   { title: "楽器演奏", videos: ["4NQBUvLZVao", "8AFoT6Y13ok"] },
 ] as const;
 
-// 参加したコンピレーションアルバム(作品セクション)
+// 企画したコンピレーションアルバム(参加セクション)
 export const COMPILATION = {
-  label: "参加したコンピレーションアルバム",
+  label: "コンピレーションアルバム",
   title: "【ボーマス53】コンピレーションアルバム「キャプリズム」 XFD",
   videoId: "-LR0hXOsLu8",
 } as const;
