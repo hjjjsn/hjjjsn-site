@@ -79,17 +79,6 @@ const shelf = LINKS.filter((l) => l.label !== "Spotify").map((l) => ({
       </div>
     </div>
 
-    <div class="compilation settle">
-      <h3 class="service-title">{COMPILATION.label}</h3>
-      <div class="compilation-video">
-        <EmbedFacade
-          platform="youtube"
-          embedId={COMPILATION.videoId}
-          title={COMPILATION.title}
-        />
-      </div>
-    </div>
-
     {/* 棚:各プラットフォームの最新ビジュアルを /api/works から埋める */}
     <div class="shelf settle">
       {
@@ -115,7 +104,7 @@ const shelf = LINKS.filter((l) => l.label !== "Spotify").map((l) => ({
   </section>
 
   <section class="section">
-    <h2 class="section-title settle">依頼</h2>
+    <h2 class="section-title settle">参加</h2>
     <p class="section-lead settle">
       相談は
       <a href={DISCORD.inviteUrl} rel="noopener" target="_blank">Discord</a>
@@ -138,6 +127,16 @@ const shelf = LINKS.filter((l) => l.label !== "Spotify").map((l) => ({
           </div>
         ))
       }
+      <div class="service settle">
+        <h3 class="service-title">{COMPILATION.label}</h3>
+        <div class="service-videos" data-count="1">
+          <EmbedFacade
+            platform="youtube"
+            embedId={COMPILATION.videoId}
+            title={COMPILATION.title}
+          />
+        </div>
+      </div>
     </div>
   </section>
 
@@ -340,16 +339,6 @@ const shelf = LINKS.filter((l) => l.label !== "Spotify").map((l) => ({
 
   .release-listen {
     margin-block-start: 1.5rem;
-  }
-
-  .compilation {
-    margin-block-end: 3.5rem;
-  }
-
-  @media (min-width: 640px) {
-    .compilation-video {
-      max-width: 32rem;
-    }
   }
 
   /* 棚:各プラットフォームの最新ビジュアルを正方形カードで並べる */
