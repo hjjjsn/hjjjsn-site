@@ -4,40 +4,13 @@ import EmbedFacade from "../components/EmbedFacade.astro";
 import DiscordCta from "../components/DiscordCta.astro";
 import { SITE, LINKS, DISCORD, SERVICES, COMPILATION } from "../config";
 
-// ヒーロー:自分のチャンネルの動画一覧をビルド時に取得し、
-// 表示のたびにクライアント側でランダムに1本選ぶ。
-const FEED_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${SITE.youtubeChannelId}`;
-
-function decodeEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'");
-}
-
-let heroVideos: { id: string; title: string }[] = [];
-try {
-  const res = await fetch(FEED_URL);
-  if (res.ok) {
-    const xml = await res.text();
-    const ids = [...xml.matchAll(/<yt:videoId>([^<]+)<\/yt:videoId>/g)].map(
-      (m) => m[1],
-    );
-    const titles = [...xml.matchAll(/<media:title>([^<]+)<\/media:title>/g)].map(
-      (m) => decodeEntities(m[1]),
-    );
-    heroVideos = ids.map((id, i) => ({ id, title: titles[i] ?? SITE.title }));
-  }
-} catch {
-  // フィード取得失敗時は下のフォールバックに任せる
-}
-if (heroVideos.length === 0) {
-  heroVideos = SERVICES.flatMap((s) =>
-    s.videos.map((id) => ({ id, title: s.title })),
-  );
-}
+// ヒーロー:表示のたびに Worker の /api/hero-videos(チャンネルの横動画一覧)から
+// クライアント側でランダムに1本選ぶ。ここでは初期表示 兼 API 失敗時の
+// フォールバック(横動画と確認済みのもの)だけを埋め込む。
+const heroVideos: { id: string; title: string }[] = [
+  { id: COMPILATION.videoId, title: COMPILATION.title },
+  ...SERVICES.flatMap((s) => s.videos.map((id) => ({ id, title: s.title }))),
+];
 
 const hero = heroVideos[0];
 ---

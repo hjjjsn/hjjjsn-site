@@ -22,7 +22,8 @@ export default {
     }
 
     const cache = caches.default;
-    const cacheKey = new Request(`${url.origin}/api/hero-videos`);
+    // キー末尾はキャッシュ世代。フィルタ条件を変えたらここを上げて旧キャッシュを無効化する
+    const cacheKey = new Request(`${url.origin}/api/hero-videos?v=2`);
     const cached = await cache.match(cacheKey);
     if (cached) return cached;
 
@@ -42,7 +43,25 @@ export default {
       }));
       if (videos.length === 0) throw new Error("empty feed");
 
-      const res = new Response(JSON.stringify(videos), {
+      // 横動画だけに絞る:通常動画は /shorts/{id} が /watch へリダイレクトされ、
+      // Shorts(縦動画)は 200 で止まる。判定不能な動画は除外する
+      const checked = await Promise.all(
+        videos.map(async (video) => {
+          try {
+            const probe = await fetch(
+              `https://www.youtube.com/shorts/${video.id}`,
+              { method: "HEAD", redirect: "manual" },
+            );
+            return probe.status >= 300 && probe.status < 400 ? video : null;
+          } catch {
+            return null;
+          }
+        }),
+      );
+      const landscape = checked.filter((v) => v !== null);
+      if (landscape.length === 0) throw new Error("no landscape videos");
+
+      const res = new Response(JSON.stringify(landscape), {
         headers: {
           "content-type": "application/json; charset=utf-8",
           // エッジで10分キャッシュ。新着動画はこの遅延までで候補に入る
