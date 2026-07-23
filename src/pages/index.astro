@@ -2,7 +2,15 @@
 import Base from "../layouts/Base.astro";
 import EmbedFacade from "../components/EmbedFacade.astro";
 import DiscordCta from "../components/DiscordCta.astro";
-import { SITE, LINKS, DISCORD, SERVICES, COMPILATION, MUSIC } from "../config";
+import {
+  SITE,
+  LINKS,
+  DISCORD,
+  SERVICES,
+  COMPILATION,
+  MUSIC,
+  BOOK,
+} from "../config";
 
 // ヒーロー:表示のたびに Worker の /api/hero-videos(チャンネルの横動画一覧)から
 // クライアント側でランダムに1本選ぶ。ここでは初期表示 兼 API 失敗時の
@@ -15,12 +23,17 @@ const heroVideos: { id: string; title: string }[] = [
 const hero = heroVideos[0];
 
 const spotifyUrl = LINKS.find((l) => l.label === "Spotify")?.url ?? "";
-// 作品の棚(Spotify は最新リリース枠が担うので除く)
-const shelf = LINKS.filter((l) => l.label !== "Spotify").map((l) => ({
-  key: l.label.toLowerCase(),
-  label: l.label,
-  url: l.url,
-}));
+// 作品の棚(Spotify は最新リリース枠が担うので除く)。
+// image が指定されているものは静的表示、無いものは /api/works から JS で埋める
+const shelf = [
+  ...LINKS.filter((l) => l.label !== "Spotify").map((l) => ({
+    key: l.label.toLowerCase(),
+    label: l.label,
+    url: l.url,
+    image: null as string | null,
+  })),
+  { key: "book", label: BOOK.label, url: BOOK.url, image: BOOK.image },
+];
 ---
 
 <Base>
@@ -94,7 +107,13 @@ const shelf = LINKS.filter((l) => l.label !== "Spotify").map((l) => ({
               <span class="shelf-blank" aria-hidden="true">
                 {card.label}
               </span>
-              <img class="melt-on-hover" alt="" loading="lazy" hidden />
+              <img
+                class="melt-on-hover"
+                alt=""
+                loading="lazy"
+                src={card.image ?? undefined}
+                hidden={!card.image}
+              />
             </span>
             <span class="meta shelf-label">{card.label}</span>
           </a>
@@ -350,7 +369,7 @@ const shelf = LINKS.filter((l) => l.label !== "Spotify").map((l) => ({
 
   @media (min-width: 640px) {
     .shelf {
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
     }
   }
 

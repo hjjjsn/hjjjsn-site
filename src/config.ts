@@ -36,6 +36,13 @@ export const MUSIC = {
   itunesArtistId: "1869213901",
 } as const;
 
+// 書籍(作品セクションの棚に置く)。画像は Amazon の ASIN 画像エンドポイント(静的)
+export const BOOK = {
+  label: "『溶けているあいだ』",
+  url: "https://www.amazon.co.jp/dp/B0H35397NZ",
+  image: "https://m.media-amazon.com/images/P/B0H35397NZ.01._SCLZZZZZZZ_.jpg",
+} as const;
+
 // 応援して欲しいもの。フッタ・/links/・トップの作品セクションに使う
 export const LINKS = [
   {
