@@ -31,11 +31,12 @@ gh api repos/hjjjsn/hjjjsn-site/commits/<sha>/check-runs --jq '.check_runs[] | {
 
 ユーザー指示により、要件書の「Works/Words/About」構成から **「依頼(頼まれてできること)」+「作品(応援して欲しいもの)」の2本柱** に再構成した。デザイントークン・「析出」モーション・トーンは維持。ページは `/`・`/links/`・`/404` の3つだけ。
 
-- **トップ `/`**:
-  - Hero:自分の YouTube チャンネル(`UCygmaycqK-SxtJSTyU2iLFA`)の動画フィードをビルド時に取得し、**クライアント側でランダムに1本表示**(`#hero-videos` の JSON から選択。JS無効時はフィード先頭の動画)。縦書き文言は「音楽をしています」
-  - 依頼:ボーカルミックス(rB7107d5a2o)/ オケ音源制作(VYkGTB1FP5o)/ 楽器演奏(4NQBUvLZVao, 8AFoT6Y13ok)。実績動画の埋め込みのみで説明文なし
-  - 作品:コンピレーションアルバム「キャプリズム」XFD(-LR0hXOsLu8)+ 応援リンク(Spotify / YouTube / niconico / BOOTH / note)
+- **トップ `/`**(セクション順はユーザー指示で 作品 → 依頼):
+  - Hero:**Worker の `/api/hero-videos`(YouTube フィードプロキシ、エッジ10分キャッシュ)から表示時に取得**し、クライアント側でランダムに1本表示。API 失敗時はビルド時に埋め込んだリスト、それも無ければ SERVICES にフォールバック。縦書き文言は「音楽をしています」。※ビルド時のフィード取得は **CI 環境では失敗する**(検証済み)ので、ランタイム API が本命
+  - 作品:コンピレーションアルバム「キャプリズム」XFD(-LR0hXOsLu8)+ 応援リンク(Spotify / YouTube / niconico / BOOTH / note)。リード文なし
+  - 依頼:ボーカルミックス(rB7107d5a2o)/ オケ音源制作(VYkGTB1FP5o)/ 楽器演奏(4NQBUvLZVao, 8AFoT6Y13ok)。実績動画の埋め込みのみ。リード文は「相談は Discord から。」だけ
   - Discord CTA はボタンのみ(「たまに、ここで話しています」の文言はユーザー指示で削除)
+- **Worker スクリプト追加済み**(`worker/index.js` + `wrangler.jsonc` の `main`)。静的アセット配信 + `/api/hero-videos` のみ。チャンネルIDは `src/config.ts` の `SITE.youtubeChannelId` を import
 - **削除済み**:About・works 詳細/一覧・words・RSS・コンテンツコレクション(`src/content.config.ts`)・`WorkCard`/`WordRow`。全コンテンツは **`src/config.ts` の定数(SERVICES / COMPILATION / LINKS / DISCORD)で一元管理** に変更
 - 実URLは全て有効性確認済み(YouTube oEmbed / Discord invite API)。書籍(Amazon)リンクはユーザー指示で削除済み
 

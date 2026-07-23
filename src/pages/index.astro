@@ -62,35 +62,7 @@ const hero = heroVideos[0];
   </section>
 
   <section class="section">
-    <h2 class="section-title settle">依頼</h2>
-    <p class="section-lead settle">
-      頼まれてできること。相談は
-      <a href={DISCORD.inviteUrl} rel="noopener" target="_blank">Discord</a>
-      から。
-    </p>
-    <div class="services">
-      {
-        SERVICES.map((service) => (
-          <div class="service settle">
-            <h3 class="service-title">{service.title}</h3>
-            <div class="service-videos" data-count={service.videos.length}>
-              {service.videos.map((id) => (
-                <EmbedFacade
-                  platform="youtube"
-                  embedId={id}
-                  title={service.title}
-                />
-              ))}
-            </div>
-          </div>
-        ))
-      }
-    </div>
-  </section>
-
-  <section class="section">
     <h2 class="section-title settle">作品</h2>
-    <p class="section-lead settle">応援して欲しいもの。</p>
     <div class="compilation settle">
       <h3 class="service-title">{COMPILATION.label}</h3>
       <div class="compilation-video">
@@ -118,6 +90,33 @@ const hero = heroVideos[0];
   </section>
 
   <section class="section">
+    <h2 class="section-title settle">依頼</h2>
+    <p class="section-lead settle">
+      相談は
+      <a href={DISCORD.inviteUrl} rel="noopener" target="_blank">Discord</a>
+      から。
+    </p>
+    <div class="services">
+      {
+        SERVICES.map((service) => (
+          <div class="service settle">
+            <h3 class="service-title">{service.title}</h3>
+            <div class="service-videos" data-count={service.videos.length}>
+              {service.videos.map((id) => (
+                <EmbedFacade
+                  platform="youtube"
+                  embedId={id}
+                  title={service.title}
+                />
+              ))}
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section">
     <DiscordCta />
   </section>
 </Base>
@@ -129,11 +128,23 @@ const hero = heroVideos[0];
   set:html={JSON.stringify(heroVideos).replace(/</g, "\\u003c")}
 />
 <script>
+  // 候補は表示時点のチャンネル動画一覧(Worker の /api/hero-videos)。
+  // 取れないときだけビルド時に埋め込んだリストへフォールバック
   const dataEl = document.getElementById("hero-videos");
-  const videos: { id: string; title: string }[] = JSON.parse(
+  const fallback: { id: string; title: string }[] = JSON.parse(
     dataEl?.textContent ?? "[]",
   );
-  if (videos.length > 1) {
+  let videos = fallback;
+  try {
+    const res = await fetch("/api/hero-videos");
+    if (res.ok) {
+      const list = await res.json();
+      if (Array.isArray(list) && list.length > 0) videos = list;
+    }
+  } catch {
+    // フォールバックのまま
+  }
+  if (videos.length > 0) {
     const pick = videos[Math.floor(Math.random() * videos.length)];
     const facade = document.querySelector<HTMLElement>(".hero .facade");
     const thumb = facade?.querySelector<HTMLImageElement>(".facade-thumb");

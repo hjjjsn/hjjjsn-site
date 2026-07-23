@@ -3,9 +3,11 @@
   // Cloudflare ダッシュボードの Workers Builds プロジェクト名と一致させる
   "name": "hjjjsn-site",
   "compatibility_date": "2026-07-02",
-  // Worker スクリプトを持たない純粋な静的サイト。dist を配信するだけ
+  // /api/hero-videos(YouTube フィードプロキシ)だけ Worker が処理し、他は dist を配信
+  "main": "worker/index.js",
   "assets": {
     "directory": "./dist",
+    "binding": "ASSETS",
     "not_found_handling": "404-page"
   }
 }
