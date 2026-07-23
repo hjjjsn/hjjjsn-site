@@ -1,60 +1,106 @@
 ---
-import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
 import EmbedFacade from "../components/EmbedFacade.astro";
-import WorkCard from "../components/WorkCard.astro";
 import DiscordCta from "../components/DiscordCta.astro";
-import { SITE, LINKS, DISCORD } from "../config";
+import { SITE, LINKS, DISCORD, SERVICES, COMPILATION } from "../config";
 
-const works = (await getCollection("works")).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf(),
-);
+// ヒーロー:自分のチャンネルの動画一覧をビルド時に取得し、
+// 表示のたびにクライアント側でランダムに1本選ぶ。
+const FEED_URL = `https://www.youtube.com/feeds/videos.xml?channel_id=${SITE.youtubeChannelId}`;
 
-// ヒーロー:featured の最新 1本。なければ最新の埋め込み可能な作品
-const hero =
-  works.find((w) => w.data.featured && w.data.embedId) ??
-  works.find((w) => w.data.embedId);
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+}
+
+let heroVideos: { id: string; title: string }[] = [];
+try {
+  const res = await fetch(FEED_URL);
+  if (res.ok) {
+    const xml = await res.text();
+    const ids = [...xml.matchAll(/<yt:videoId>([^<]+)<\/yt:videoId>/g)].map(
+      (m) => m[1],
+    );
+    const titles = [...xml.matchAll(/<media:title>([^<]+)<\/media:title>/g)].map(
+      (m) => decodeEntities(m[1]),
+    );
+    heroVideos = ids.map((id, i) => ({ id, title: titles[i] ?? SITE.title }));
+  }
+} catch {
+  // フィード取得失敗時は下のフォールバックに任せる
+}
+if (heroVideos.length === 0) {
+  heroVideos = SERVICES.flatMap((s) =>
+    s.videos.map((id) => ({ id, title: s.title })),
+  );
+}
+
+const hero = heroVideos[0];
 ---
 
 <Base>
-  {
-    hero && hero.data.embedId && hero.data.platform !== "none" && (
-      <section class="hero settle-hero">
-        <div class="hero-embed">
-          <EmbedFacade
-            platform={hero.data.platform}
-            embedId={hero.data.embedId}
-            title={hero.data.title}
-          />
-          <p class="meta hero-meta">
-            <a href={`/works/${hero.id}/`}>{hero.data.title}</a>
-          </p>
-        </div>
-        {/* 縦書きはサイト全体でここ一箇所だけ(§3.3) */}
-        <p class="hero-vertical" aria-hidden="true">
-          {SITE.verticalLine}
-        </p>
-        <p class="visually-hidden">{SITE.verticalLine}</p>
-      </section>
-    )
-  }
+  <section class="hero settle-hero">
+    <div class="hero-embed">
+      <EmbedFacade platform="youtube" embedId={hero.id} title={hero.title} />
+      <p class="meta hero-meta">
+        <a
+          href={`https://www.youtube.com/watch?v=${hero.id}`}
+          rel="noopener"
+          target="_blank">{hero.title}</a
+        >
+      </p>
+    </div>
+    {/* 縦書きはサイト全体でここ一箇所だけ(§3.3) */}
+    <p class="hero-vertical" aria-hidden="true">
+      {SITE.verticalLine}
+    </p>
+    <p class="visually-hidden">{SITE.verticalLine}</p>
+  </section>
 
   <section class="section">
-    <h2 class="section-title settle">Works</h2>
+    <h2 class="section-title settle">依頼</h2>
     <p class="section-lead settle">
-      頼まれてできること。ボーカルミックスと、オケ音源の制作。
-      相談は <a href={DISCORD.inviteUrl} rel="noopener" target="_blank">Discord</a> から。
+      頼まれてできること。相談は
+      <a href={DISCORD.inviteUrl} rel="noopener" target="_blank">Discord</a>
+      から。
     </p>
-    <div class="works-grid">
-      {works.map((work) => <WorkCard work={work} />)}
+    <div class="services">
+      {
+        SERVICES.map((service) => (
+          <div class="service settle">
+            <h3 class="service-title">{service.title}</h3>
+            <div class="service-videos" data-count={service.videos.length}>
+              {service.videos.map((id) => (
+                <EmbedFacade
+                  platform="youtube"
+                  embedId={id}
+                  title={service.title}
+                />
+              ))}
+            </div>
+          </div>
+        ))
+      }
     </div>
   </section>
 
   <section class="section">
-    <h2 class="section-title settle">Support</h2>
-    <p class="section-lead settle">
-      応援して欲しいこと。聴く、観る、手に取る。どれでも。
-    </p>
+    <h2 class="section-title settle">作品</h2>
+    <p class="section-lead settle">応援して欲しいもの。</p>
+    <div class="compilation settle">
+      <h3 class="service-title">{COMPILATION.label}</h3>
+      <div class="compilation-video">
+        <EmbedFacade
+          platform="youtube"
+          embedId={COMPILATION.videoId}
+          title={COMPILATION.title}
+        />
+      </div>
+    </div>
     <ul class="support-list settle">
       {
         LINKS.map((link) => (
@@ -71,19 +117,40 @@ const hero =
     </ul>
   </section>
 
-  <section class="section about-excerpt settle">
-    <h2 class="section-title">About</h2>
-    <p>
-      体が先に引っかかって、あとから言葉がついてくる。<br />
-      素材は違っても、やっていることは同じ。
-    </p>
-    <p class="more meta"><a href="/about/">詳しく</a></p>
-  </section>
-
   <section class="section">
     <DiscordCta />
   </section>
 </Base>
+
+{/* ヒーロー用の動画リスト。クライアント側でランダムに1本選ぶ */}
+<script
+  type="application/json"
+  id="hero-videos"
+  set:html={JSON.stringify(heroVideos).replace(/</g, "\\u003c")}
+/>
+<script>
+  const dataEl = document.getElementById("hero-videos");
+  const videos: { id: string; title: string }[] = JSON.parse(
+    dataEl?.textContent ?? "[]",
+  );
+  if (videos.length > 1) {
+    const pick = videos[Math.floor(Math.random() * videos.length)];
+    const facade = document.querySelector<HTMLElement>(".hero .facade");
+    const thumb = facade?.querySelector<HTMLImageElement>(".facade-thumb");
+    const button = facade?.querySelector("button");
+    const metaLink = document.querySelector<HTMLAnchorElement>(
+      ".hero-meta a",
+    );
+    if (facade && thumb && button && metaLink) {
+      facade.dataset.embedSrc = `https://www.youtube-nocookie.com/embed/${pick.id}?autoplay=1`;
+      facade.dataset.title = pick.title;
+      thumb.src = `https://i.ytimg.com/vi/${pick.id}/hqdefault.jpg`;
+      button.setAttribute("aria-label", `${pick.title} を再生`);
+      metaLink.href = `https://www.youtube.com/watch?v=${pick.id}`;
+      metaLink.textContent = pick.title;
+    }
+  }
+</script>
 
 <style>
   .hero {
@@ -125,15 +192,39 @@ const hero =
     margin-block-end: 2.5rem;
   }
 
-  .works-grid {
+  .services {
+    display: grid;
+    gap: 3.5rem;
+  }
+
+  .service-title {
+    font-size: 1.05rem;
+    margin-block-end: 1rem;
+  }
+
+  .service-videos {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 3rem 2rem;
+    gap: 2rem;
   }
 
   @media (min-width: 640px) {
-    .works-grid {
+    .service-videos {
       grid-template-columns: repeat(2, 1fr);
+    }
+
+    .service-videos[data-count="1"] {
+      grid-template-columns: minmax(0, 32rem);
+    }
+  }
+
+  .compilation {
+    margin-block-end: 3.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .compilation-video {
+      max-width: 32rem;
     }
   }
 
@@ -161,13 +252,5 @@ const hero =
 
   .support-list a:hover .support-label {
     color: var(--moss);
-  }
-
-  .more {
-    margin-block-start: 2rem;
-  }
-
-  .about-excerpt p {
-    max-width: var(--measure);
   }
 </style>

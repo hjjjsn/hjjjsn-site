@@ -1,22 +1,36 @@
 // 全外部リンク・サイト定数の一元管理(§4.4)
-// URL はすべてここだけを書き換えれば全ページに反映される。
+// URL・動画IDはすべてここだけを書き換えれば全ページに反映される。
 
 export const SITE = {
   title: "hjjjsn",
   description:
-    "体が先に引っかかって、あとから言葉がついてくる。ボーカルミックスとオケ音源制作、作ったものの置き場。",
+    "hjjjsn。音楽をしています。ボーカルミックス・オケ音源制作・楽器演奏の依頼と、作品の置き場。",
   // 縦書きで置く一文(トップページ・ヒーロー右端)
-  verticalLine: "体が先に引っかかって、あとから言葉がついてくる",
+  verticalLine: "音楽をしています",
+  // トップのヒーローにランダム表示する動画の取得元チャンネル
+  youtubeChannelId: "UCygmaycqK-SxtJSTyU2iLFA",
 } as const;
 
 export const DISCORD = {
   inviteUrl: "https://discord.gg/m9bwWuGZ",
-  // トーン基準(§2.4):「参加しよう!」ではない温度
-  ctaText: "たまに、ここで話しています",
   buttonLabel: "Discord",
 } as const;
 
-// 応援して欲しいこと。フッタ・/links/・トップの Support に使う
+// 頼まれてできること。videos は実績動画(YouTube ID)
+export const SERVICES = [
+  { title: "ボーカルミックス", videos: ["rB7107d5a2o"] },
+  { title: "オケ音源制作", videos: ["VYkGTB1FP5o"] },
+  { title: "楽器演奏", videos: ["4NQBUvLZVao", "8AFoT6Y13ok"] },
+] as const;
+
+// 参加したコンピレーションアルバム(作品セクション)
+export const COMPILATION = {
+  label: "参加したコンピレーションアルバム",
+  title: "【ボーマス53】コンピレーションアルバム「キャプリズム」 XFD",
+  videoId: "-LR0hXOsLu8",
+} as const;
+
+// 応援して欲しいもの。フッタ・/links/・トップの作品セクションに使う
 export const LINKS = [
   {
     label: "Spotify",
@@ -28,5 +42,5 @@ export const LINKS = [
   },
   { label: "niconico", url: "https://www.nicovideo.jp/user/142850614" },
   { label: "BOOTH", url: "https://hjjjsn.booth.pm" },
-  { label: "書籍", url: "https://www.amazon.co.jp/dp/B0H35397NZ" },
+  { label: "note", url: "https://note.com/hjjjsn" },
 ] as const;

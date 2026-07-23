@@ -6,7 +6,7 @@ interface Props {
   title?: string;
   description?: string;
   /** 現在地表示(--precipitate)に使う nav キー */
-  current?: "works" | "about" | "links";
+  current?: "links";
 }
 
 const { title, description = SITE.description, current } = Astro.props;
@@ -14,11 +14,7 @@ const pageTitle = title ? `${title} — ${SITE.title}` : SITE.title;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const ogImage = new URL("/og-default.png", Astro.site);
 
-const nav = [
-  { key: "works", label: "Works", href: "/works/" },
-  { key: "about", label: "About", href: "/about/" },
-  { key: "links", label: "Links", href: "/links/" },
-] as const;
+const nav = [{ key: "links", label: "Links", href: "/links/" }] as const;
 ---
 
 <!doctype html>
@@ -30,12 +26,6 @@ const nav = [
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title={SITE.title}
-      href="/rss.xml"
-    />
 
     <!-- OGP / Twitter カード(§4.5) -->
     <meta property="og:title" content={pageTitle} />
