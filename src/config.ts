@@ -20,7 +20,10 @@ export const DISCORD = {
 export const SERVICES = [
   { title: "ボーカルミックス", videos: ["rB7107d5a2o"] },
   { title: "オケ音源制作", videos: ["VYkGTB1FP5o"] },
-  { title: "楽器演奏", videos: ["4NQBUvLZVao", "8AFoT6Y13ok"] },
+  {
+    title: "楽器演奏",
+    videos: ["4NQBUvLZVao", "8AFoT6Y13ok", "v11Vk62Xvz8"],
+  },
 ] as const;
 
 // 企画したコンピレーションアルバム(参加セクション)
