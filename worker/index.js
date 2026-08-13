@@ -117,8 +117,20 @@ async function fetchNoteImage() {
   const res = await fetch(`${linkUrl("note")}/rss`);
   if (!res.ok) throw new Error(`note ${res.status}`);
   const xml = await res.text();
-  const m = xml.match(/<media:thumbnail>([^<]+)<\/media:thumbnail>/);
-  return m ? decodeEntities(m[1]) : null;
+
+  // RSS 全体から thumbnail を探すと、最新記事にアイキャッチが
+  // 無い場合に古い記事の画像を拾ってしまう。必ず先頭 item のみ見る。
+  const latestItem = xml.match(/<item>([\s\S]*?)<\/item>/)?.[1];
+  if (!latestItem) return null;
+
+  const thumbnail = latestItem.match(
+    /<media:thumbnail>([^<]+)<\/media:thumbnail>/,
+  )?.[1];
+  if (thumbnail) return decodeEntities(thumbnail);
+
+  // note は記事本文の先頭画像だけを description に入れることがある。
+  const contentImage = latestItem.match(/<img\b[^>]*\bsrc=["']([^"']+)["']/i)?.[1];
+  return contentImage ? decodeEntities(contentImage) : null;
 }
 
 // BOOTH:ショップページの先頭商品画像。商品が並ぶまでは null(カードはラベル表示)
@@ -176,7 +188,7 @@ export default {
         return Response.json({ ...data, errors });
       }
       return withCache(
-        `${url.origin}/api/works?v=3`,
+        `${url.origin}/api/works?v=4`,
         1800,
         () => fetchWorksData(url.origin, ctx),
         ctx,
